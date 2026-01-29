@@ -1,0 +1,240 @@
+/* Stili base dell'app */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  background-color: #f4f7f6; /* Sfondo chiaro */
+  color: #212529; /* TESTO NERO PER TUTTA L'APP */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header (Barra Blu) */
+.app-header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.app-header h1 { margin: 0; font-size: 1.5em; }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logout-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.logout-button:hover { background-color: #c82333; }
+
+/* Navigazione (sotto l'header) */
+.app-nav {
+  background-color: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.app-nav button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333; /* Testo bottone scuro */
+}
+.app-nav button:hover { background-color: #e9e9e9; }
+.app-nav button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* Contenuto principale */
+.app-main {
+  padding: 20px;
+  flex: 1;
+}
+
+/* Login e Accesso Negato */
+.login-container, .unauthorized-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  color: #212529; /* Testo scuro */
+}
+
+/* --- Stili Tabelle (Log, Anagrafica, ecc) --- */
+.table-container {
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  color: #212529; /* Testo scuro per la tabella */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+tbody tr:hover { background-color: #f1f1f1; }
+
+.status-cell {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 0.9em;
+  color: #212529; /* Testo scuro di base */
+}
+.status-success { background-color: #d4edda; color: #155724; }
+.status-failed { background-color: #f8d7da; color: #721c24; }
+.status-warning { background-color: #fff3cd; color: #856404; }
+
+
+/* --- Stili Form (Aggiungi Utente) --- */
+.addUserForm {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 30px;
+  color: #212529; /* Testo scuro per il form */
+}
+
+.addUserForm h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+.formRow {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 20px; 
+  margin-bottom: 15px;
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1; 
+  min-width: 200px; 
+}
+.formGroup.fullWidth { flex-basis: 100%; }
+.formGroup label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #333;
+}
+.formGroup input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  color: #212529; /* Testo scuro negli input */
+  background-color: #fff; 
+}
+.addUserForm button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+}
+.addUserForm button:disabled { background-color: #aaa; }
+.addUserForm button:hover:not(:disabled) { background-color: #0056b3; }
+.error-message { color: #d93025; }
+
+/* --- Stili Home (Widget) --- */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.admin-widget {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #212529; /* Testo scuro per i widget */
+}
+.admin-widget h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+.admin-widget .form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.admin-widget label {
+  font-weight: 600;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+.admin-widget input,
+.admin-widget select,
+.admin-widget textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box; 
+  color: #212529; 
+  background-color: #fff; 
+}
+.admin-widget textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.admin-widget button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+}
+.admin-widget button:hover { background-color: #218838; }
+.button-danger { background-color: #dc3545 !important; }
+.button-danger:hover { background-color: #c82333 !important; }
