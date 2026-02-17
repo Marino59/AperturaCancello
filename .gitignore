@@ -28,3 +28,4 @@ serviceAccountKey.json
 .env
 backup_pi/
 AnaTelegram*.csv
+REMOTE_INFO.md
