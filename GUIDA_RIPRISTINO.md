@@ -68,3 +68,49 @@ Una volta che il Raspberry è acceso e connesso, **non devi fare altro da solo**
 Se vedi che non riesco a collegarmi, potrebbe essere che il Wi-Fi non ha preso. In tal caso, prova a collegare il Raspberry temporaneamente al router con un cavo di rete (LAN).
 
 *Fai una foto ai collegamenti del vecchio Raspberry Pi PRIMA di smontarlo, ti salverà la vita!*
+
+---
+
+## 🖥️ FASE 4: Ripristino del Pannello di Controllo Web (Su un nuovo PC)
+
+Se cambi computer o perdi i file del pannello di controllo web, segui questi passi per rimetterlo in funzione:
+
+1. **Installa Node.js:** Scarica e installa Node.js (versione LTS) da [https://nodejs.org/](https://nodejs.org/).
+2. **Scarica il codice dal tuo repository:**
+   * Apri PowerShell sul tuo computer.
+   * Spostati nella cartella dove vuoi salvare il progetto (es. `cd C:\Users\marin\Progetti`).
+   * Esegui il comando per scaricare i file:
+     ```powershell
+     git clone https://github.com/Marino59/AperturaCancello.git cancello-admin
+     ```
+   * Entra nella cartella del progetto:
+     ```powershell
+     cd cancello-admin
+     ```
+   * Passa al branch di lavoro corretto:
+     ```powershell
+     git checkout feature/delicate-modifications
+     ```
+3. **Installa le dipendenze:**
+   * Esegui il comando:
+     ```powershell
+     npm install
+     ```
+4. **Avvia il programma per provarlo:**
+   * Esegui il comando:
+     ```powershell
+     npm run dev
+     ```
+   * Il programma si aprirà nel browser all'indirizzo `http://localhost:5173`.
+
+5. **Pubblica il sito online (Firebase Hosting):**
+   * Se vuoi che il pannello sia accessibile ovunque (come adesso):
+     ```powershell
+     npm run build
+     ```
+     e poi:
+     ```powershell
+     npx firebase deploy
+     ```
+   * *(Se richiesto, fai l'accesso con il tuo account Google usando il comando `npx firebase login`)*
+
