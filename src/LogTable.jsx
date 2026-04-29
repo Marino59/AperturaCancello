@@ -51,7 +51,7 @@ const LogTable = () => {
   useEffect(() => {
     setLoadingLogs(true);
     const logsRef = collection(db, 'gate_logs');
-    const q = query(logsRef, orderBy('timestamp', 'desc'), limit(100));
+    const q = query(logsRef, orderBy('timestamp', 'desc'), limit(200));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       // Salviamo i log "grezzi" come arrivano
@@ -94,7 +94,7 @@ const LogTable = () => {
 
   return (
     <div className="table-container">
-      <h2>Log Ingressi e Eventi (Ultimi 100)</h2>
+      <h2>Log Ingressi e Eventi (Ultimi 200)</h2>
       <table>
         <thead>
           <tr>

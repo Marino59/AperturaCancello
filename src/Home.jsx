@@ -12,7 +12,7 @@ import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack'; 
+import Stack from '@mui/material/Stack';
 
 // Icone
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -23,6 +23,7 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import GarageIcon from '@mui/icons-material/Garage';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 
 const COLLECTION_UTENTI = "authorized_users";
 const COLLECTION_LOGS = "gate_logs";
@@ -71,7 +72,7 @@ const Home = ({ setView }) => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={3}>
-        
+
         {/* --- CARD PRINCIPALE: RICHIESTE SOSPESE --- */}
         <Grid item xs={12}>
           <Card sx={mainCardStyle}>
@@ -87,9 +88,9 @@ const Home = ({ setView }) => {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button 
-                variant="contained" 
-                size="large" 
+              <Button
+                variant="contained"
+                size="large"
                 color="error"
                 startIcon={<PendingActionsIcon />}
                 onClick={() => setView('pending')}
@@ -131,6 +132,14 @@ const Home = ({ setView }) => {
               <Stack spacing={1} direction="column">
                 <Button variant="outlined" startIcon={<CampaignIcon />} onClick={() => setView('broadcast')}>
                   Invia Notifica
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  startIcon={<PowerSettingsNewIcon />}
+                  onClick={() => setView('presa')}
+                >
+                  Controllo Presa
                 </Button>
               </Stack>
             </CardContent>

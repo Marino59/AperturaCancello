@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { 
-  collection, 
-  onSnapshot, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
+import {
+  collection,
+  onSnapshot,
+  doc,
+  setDoc,
+  deleteDoc,
   addDoc,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 
 // Importazioni MUI per l'AppBar
@@ -32,7 +32,8 @@ import MessageManager from './MessageManager.jsx';
 import BroadcastManager from './BroadcastManager.jsx';
 import TimeManager from './TimeManager.jsx';
 import HolidayManager from './HolidayManager.jsx';
-import Login from './Login.jsx'; 
+import Login from './Login.jsx';
+import OutletManager from './OutletManager.jsx';
 import './App.css'; // Importa gli stili globali
 
 const App = () => {
@@ -40,10 +41,10 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [adminUsers, setAdminUsers] = useState([]);
-  
-  const [view, setView] = useState('home'); 
+
+  const [view, setView] = useState('home');
   const [pendingApprovalUser, setPendingApprovalUser] = useState(null);
-  const [pendingKey, setPendingKey] = useState(0); 
+  const [pendingKey, setPendingKey] = useState(0);
 
   // Carica la lista degli amministratori all'avvio
   useEffect(() => {
@@ -70,12 +71,12 @@ const App = () => {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [adminUsers]); 
+  }, [adminUsers]);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setView('home'); 
+      setView('home');
     } catch (error) {
       console.error("Errore during il logout:", error);
     }
@@ -85,7 +86,7 @@ const App = () => {
   const handleApproveUser = (logData) => {
     // --- CORREZIONE: Passiamo direttamente l'oggetto logData ---
     // logData contiene già le chiavi corrette (telegram_id, telegram_nome, ecc.)
-    setPendingApprovalUser(logData); 
+    setPendingApprovalUser(logData);
     setView('approve'); // Cambia vista per mostrare AddUserForm
   };
 
@@ -95,7 +96,7 @@ const App = () => {
     setPendingKey(prevKey => prevKey + 1); // Forza il rerender di PendingRequests
     setView('pending'); // Torna alla lista delle richieste
   };
-  
+
   // --- FUNZIONI PER I WIDGET ---
   const handleSendBroadcast = async (broadcastData) => {
     try {
@@ -146,9 +147,9 @@ const App = () => {
       alert(`Errore aggiunta garage: ${error.message}`);
     }
   };
-  
+
   const handleRemoveGarage = async (docId) => {
-     try {
+    try {
       await deleteDoc(doc(db, 'garage_mapping', docId));
       alert('Garage rimosso!');
     } catch (error) {
@@ -156,7 +157,7 @@ const App = () => {
       alert(`Errore rimozione garage: ${error.message}`);
     }
   };
-  
+
   // Questa funzione non è usata dalla tua Home originale, ma la lasciamo
   const handleOpenGate = async () => {
     try {
@@ -171,13 +172,28 @@ const App = () => {
       alert(`Errore apertura cancello: ${error.message}`);
     }
   };
+
+  const handleOutletCommand = async (command) => {
+    try {
+      await addDoc(collection(db, 'admin_commands'), {
+        command: command,
+        timestamp: serverTimestamp(),
+        admin_email: user.email
+      });
+      const action = command === 'outlet_on' ? 'accensione' : 'spegnimento';
+      alert(`Comando di ${action} presa inviato!`);
+    } catch (error) {
+      console.error('Errore comando presa:', error);
+      alert(`Errore comando presa: ${error.message}`);
+    }
+  };
   // --- FINE FUNZIONI ---
 
   // --- RENDER VISTE ---
   const renderView = () => {
-    switch(view) {
+    switch (view) {
       case 'home':
-        return <Home setView={setView} />; 
+        return <Home setView={setView} />;
       case 'pending':
         return <PendingRequests key={pendingKey} onApprove={handleApproveUser} />;
       case 'anagrafica':
@@ -194,14 +210,16 @@ const App = () => {
         return <TimeManager onSaveSchedule={handleSaveSchedule} />;
       case 'timer_festivi':
         return <HolidayManager onSaveHolidays={handleSaveHolidays} />;
+      case 'presa':
+        return <OutletManager onOutletCommand={handleOutletCommand} />;
       case 'approve':
         return (
           <div style={{ padding: '1rem', border: '2px solid #28a745', marginBottom: '2rem', borderRadius: '8px' }}>
-            <h3 style={{color: '#28a745', marginTop: 0}}>Approva Nuovo Utente</h3>
+            <h3 style={{ color: '#28a745', marginTop: 0 }}>Approva Nuovo Utente</h3>
             <p>Completare le informazioni per autorizzare l'accesso.</p>
-            <AddUserForm 
-                initialRequest={pendingApprovalUser} // <-- CORREZIONE PROP NAME
-                onUserAdded={handleUserAdded} // <-- CORREZIONE PROP NAME (e funzione)
+            <AddUserForm
+              initialRequest={pendingApprovalUser} // <-- CORREZIONE PROP NAME
+              onUserAdded={handleUserAdded} // <-- CORREZIONE PROP NAME (e funzione)
             />
           </div>
         );
