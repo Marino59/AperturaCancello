@@ -130,6 +130,39 @@ const AddUserForm = ({ onUserAdded, initialRequest }) => { // AGGIUNTA initialRe
     <form onSubmit={handleSubmit} className="addUserForm">
       <h3>{initialRequest ? 'Approva Richiesta Utente' : 'Aggiungi Nuovo Utente'}</h3>
       
+      {initialRequest && (
+        <div style={{ 
+          backgroundColor: '#fff0f1', 
+          borderLeft: '4px solid #dc3545', 
+          borderRadius: '6px', 
+          padding: '14px 18px', 
+          marginBottom: '20px',
+          color: '#2d3748',
+          fontSize: '0.95rem',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.03)'
+        }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#dc3545', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            📌 DATI RICHIESTA TELEGRAM DI ORIGINE
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <span style={{ minWidth: '160px', color: '#718096' }}>👤 Nome/Cognome Profilo:</span>
+              <strong style={{ color: '#1a202c' }}>{initialRequest.telegram_nome || 'N/D'} {initialRequest.telegram_cognome || ''}</strong>
+            </div>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <span style={{ minWidth: '160px', color: '#718096' }}>🤖 Telegram ID:</span>
+              <strong style={{ color: '#1a202c', fontFamily: 'monospace' }}>{initialRequest.telegram_id || 'N/D'}</strong>
+            </div>
+            <div style={{ display: 'flex', gap: '4px', flexDirection: 'column', marginTop: '4px', borderTop: '1px dashed rgba(220, 53, 69, 0.15)', paddingTop: '6px' }}>
+              <span style={{ color: '#718096', fontWeight: '500' }}>💬 Messaggio inviato:</span>
+              <span style={{ fontStyle: 'italic', fontWeight: '600', color: '#2d3748', fontSize: '1rem', backgroundColor: 'rgba(255,255,255,0.6)', padding: '6px 10px', borderRadius: '4px', display: 'inline-block', marginTop: '2px' }}>
+                "{initialRequest.testo_ricevuto || 'Nessun messaggio'}"
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* --- Riga 1: Nome e Cognome --- */}
       <div className="formRow">
         <div className="formGroup">
