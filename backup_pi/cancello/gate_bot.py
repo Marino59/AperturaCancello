@@ -8,8 +8,9 @@ import sys
 import socket
 import asyncio 
 from telegram import Update
-from telegram.error import NetworkError
+from telegram.error import NetworkError, TimedOut
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
+from telegram.request import HTTPXRequest
 from rpi_rf import RFDevice 
 
 # Prova a importare GPIO
@@ -305,7 +306,7 @@ def setup_gpio():
         GPIO.setmode(GPIO.BCM)
         logger.debug("-> setup_gpio: Modalità BCM impostata.")
         
-        GPIO.setup(GPIO_PIN_RELAIS_GATE, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(GPIO_PIN_RELAIS_GATE, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(GPIO_PIN_RELAIS_TIMER, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(GPIO_PIN_LED_HEARTBEAT, GPIO.OUT, initial=GPIO.LOW)
         GPIO.setup(GPIO_PIN_LED_NETWORK, GPIO.OUT, initial=GPIO.HIGH) 
@@ -319,14 +320,15 @@ def setup_gpio():
         sys.exit(1) 
 
 def set_gate_relay_impulse():
-    """Attiva il relè del cancello (Telegram) per 1 secondo."""
+    """Attiva il relè del cancello (Telegram) per 1 secondo (Active-LOW)."""
     if not GPIO_LIB_FOUND:
         logger.info(f"*** SIMULAZIONE HARDWARE: Impulso 1s su Rele Pin {GPIO_PIN_RELAIS_GATE} ***")
         return
     try:
-        GPIO.output(GPIO_PIN_RELAIS_GATE, GPIO.HIGH)
-        time.sleep(1)
+        logger.info(f"*** IMPULSO RELÈ CANCELLO (PIN {GPIO_PIN_RELAIS_GATE}): LOW -> 1s -> HIGH ***")
         GPIO.output(GPIO_PIN_RELAIS_GATE, GPIO.LOW)
+        time.sleep(1)
+        GPIO.output(GPIO_PIN_RELAIS_GATE, GPIO.HIGH)
     except Exception as e:
         logger.error(f"*** ERRORE HARDWARE RELÈ GATE durante impulso: {e} ***")
 
@@ -638,6 +640,17 @@ async def telegram_heartbeat_job(context: ContextTypes.DEFAULT_TYPE):
 # --- FINE JOB ---
 
 
+# --- GESTORE ERRORI TELEGRAM ---
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Gestisce gli errori non intercettati dal bot Telegram per evitare dump corposi nel log in caso di problemi di rete."""
+    err = context.error
+    if isinstance(err, (NetworkError, TimedOut)):
+        # Evita di stampare lo stack trace intero per errori di rete/timeout noti
+        logger.warning(f"Errore di rete/timeout Telegram (silenziato): {err}")
+    else:
+        logger.error("Eccezione non gestita durante l'elaborazione di un update:", exc_info=err)
+
+
 # --- GESTIONE MESSAGGI ---
 async def gestisci_messaggio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.message or not update.message.text:
@@ -758,10 +771,37 @@ def main() -> None:
             with timer_lock: set_timer_relay_state(GPIO.HIGH)
 
         # Bot Telegram
-        application = Application.builder().token(TELEGRAM_TOKEN).build()
+        # Configura i timeout per evitare attese infinite o blocchi
+        custom_get_updates_request = HTTPXRequest(
+            connect_timeout=5.0,
+            read_timeout=30.0,
+            write_timeout=5.0,
+            connection_pool_size=8
+        )
+        custom_general_request = HTTPXRequest(
+            connect_timeout=5.0,
+            read_timeout=10.0,
+            write_timeout=5.0,
+            connection_pool_size=8
+        )
+        
+        application = (
+            Application.builder()
+            .token(TELEGRAM_TOKEN)
+            .request(custom_general_request)
+            .get_updates_request(custom_get_updates_request)
+            .build()
+        )
         application.add_handler(MessageHandler(filters.TEXT | filters.COMMAND, gestisci_messaggio))
+        application.add_error_handler(error_handler)
+        
         if application.job_queue:
-            application.job_queue.run_repeating(telegram_heartbeat_job, interval=60, first=10)
+            application.job_queue.run_repeating(
+                telegram_heartbeat_job, 
+                interval=60, 
+                first=10, 
+                job_kwargs={'misfire_grace_time': 30}
+            )
 
         # Welcome Listener
         def on_welcome(col, chg, rt):
@@ -774,7 +814,13 @@ def main() -> None:
                         logger.info(f"DEBUG: Scheduling welcome msg for {nome} ({telegram_id})")
                         try:
                             job_data = {'telegram_id': telegram_id, 'nome': nome}
-                            application.job_queue.run_once(send_welcome_message, 0, data=job_data, name=f"welcome_{telegram_id}")
+                            application.job_queue.run_once(
+                                send_welcome_message, 
+                                0, 
+                                data=job_data, 
+                                name=f"welcome_{telegram_id}",
+                                job_kwargs={'misfire_grace_time': 30}
+                            )
                             logger.info("DEBUG: Job scheduled successfully")
                         except Exception as e:
                             logger.error(f"DEBUG: Error scheduling job: {e}")
@@ -809,7 +855,13 @@ def main() -> None:
                         if telegram_id and nome and application and application.job_queue:
                             logger.info(f"NUOVO UTENTE RILEVATO: {nome} (ID: {telegram_id}). Invio benvenuto...")
                             job_data = {'telegram_id': telegram_id, 'nome': nome}
-                            application.job_queue.run_once(send_welcome_message, 0, data=job_data, name=f"welcome_user_{telegram_id}")
+                            application.job_queue.run_once(
+                                send_welcome_message, 
+                                0, 
+                                data=job_data, 
+                                name=f"welcome_user_{telegram_id}",
+                                job_kwargs={'misfire_grace_time': 30}
+                            )
 
                     except Exception as e:
                         logger.error(f"Errore nel listener nuovi utenti: {e}")
